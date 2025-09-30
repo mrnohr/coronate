@@ -803,10 +803,27 @@ li.player.missing {
 .pages__hint {
   margin: 0 auto;
   overflow: visible;
+  max-width: 600px;
 }
 
 .pages__hint-item {
   margin: 8px 0;
+}
+
+.pages__info {
+  color: var(--grey-70);
+  font-size: var(--font-body-20);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.pages__info p {
+  margin: 8px 0;
+}
+
+.pages__actions {
+  text-align: center;
+  margin: 16px 0;
 }
 
 .pages__footer {

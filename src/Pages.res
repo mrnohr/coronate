@@ -11,35 +11,6 @@ module Splash = {
   @react.component
   let make = () =>
     <div className="pages__container">
-      <aside className="pages__hint">
-        <ol>
-          <li className="pages__hint-item">
-            <button className="button-primary" onClick={_ => Db.loadDemoDB()}>
-              {React.string("Click here to load the demo data")}
-            </button>
-            {React.string(" (optional)")}
-          </li>
-          <li className="pages__hint-item">
-            <Icons.ArrowLeft />
-            {React.string(" Select a menu item.")}
-          </li>
-          <li className="pages__hint-item"> {React.string("Start creating your tournaments!")} </li>
-        </ol>
-        <Utils.Notification kind=Warning>
-          <div>
-            <p>
-              {React.string("Coronate does not require an account.")}
-              <br />
-              {React.string("It saves your data locally in your browser.")}
-            </p>
-            <p>
-              {React.string("To manage your data, visit the ")}
-              <Router.Link to_=Options> {"Options"->React.string} </Router.Link>
-              {React.string(" page.")}
-            </p>
-          </div>
-        </Utils.Notification>
-      </aside>
       <div className="pages__title">
         <div className="pages__title-icon">
           <img src=Utils.WebpackAssets.logo alt="" height="96" width="96" />
@@ -49,6 +20,20 @@ module Splash = {
           <p className={"pages__subtitle caption-30"}> {React.string("Tournament manager")} </p>
         </div>
       </div>
+      <aside className="pages__hint">
+        <div className="pages__info">
+          <p>
+            {React.string("Coronate does not require an account.")}
+            <br />
+            {React.string("It saves your data locally in your browser.")}
+          </p>
+          <p>
+            {React.string("To manage your data, visit the ")}
+            <Router.Link to_=Options> {"Options"->React.string} </Router.Link>
+            {React.string(" page.")}
+          </p>
+        </div>
+      </aside>
       <footer className={"pages__footer body-20"}>
         <div className="pages__footer-left">
           <p> {React.string("Do you enjoy using Coronate?")} </p>
