@@ -10,6 +10,15 @@ Coronate is a web app for managing Swiss-style chess tournaments.
 [Sourcehut mirror](https://sr.ht/~johnridesabike/coronate/) |
 [Mailing list](https://lists.sr.ht/~johnridesabike/public-inbox)
 
+## Changes from Upstream
+
+This version of Coronate was originally a fork of [johnridesabike/coronate](https://github.com/johnridesabike/coronate).
+
+This is what I added:
+
+- Allow players to pre-select byes for different rounds
+- Allow TDs to set the number of rounds for a tournament in advance. This was needed so that we could pre-select byes for different rounds.
+
 ## Help wanted!
 
 Maintenance is currently paused for Coronate. This has almost always been a
