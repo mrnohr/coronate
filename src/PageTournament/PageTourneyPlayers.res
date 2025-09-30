@@ -473,9 +473,12 @@ let make = (~tournament: LoadTournament.t) => {
         </table>
       </Utils.Panel>
       <Utils.Panel>
-        <h3> {React.string("Bye requests")} </h3>
         {switch Map.isEmpty(tourney.byeRequests) {
-        | true => <p className="caption-20"> {React.string("No bye requests yet.")} </p>
+        | true =>
+          <>
+            <h3> {React.string("Bye requests")} </h3>
+            <p className="caption-20"> {React.string("No bye requests yet.")} </p>
+          </>
         | false =>
           <table style={{width: "100%"}}>
             <caption> {React.string("Bye requests")} </caption>

@@ -105,7 +105,8 @@ h1 {
 }
 
 .title-40,
-h2 {
+h2,
+caption {
   font-size: var(--font-title-40);
   font-weight: 300;
   margin: 0.25em 0;
