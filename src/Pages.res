@@ -35,39 +35,17 @@ module Splash = {
         </div>
       </aside>
       <footer className={"pages__footer body-20"}>
-        <div className="pages__footer-left">
-          <p> {React.string("Do you enjoy using Coronate?")} </p>
-          <p>
-            <a href="https://www.buymeacoffee.com/johnridesabike" target="_blank">
-              <img
-                src=Utils.WebpackAssets.buyMeACoffee
-                alt="Buy Me A Coffee"
-                height="60"
-                width="217"
-                style={{height: "60px", width: "217px"}}
-              />
-            </a>
-          </p>
-        </div>
-        <div className="pages__footer-right">
-          <p> {React.string(`Copyright ${HtmlEntities.copy} John Jackson.`)} </p>
-          <p>
-            <a className="pages__footer-link" href=Utils.issues_url>
-              {React.string("Suggestions and bug reports are welcome.")}
-            </a>
-          </p>
-          <p> {React.string("Coronate is free software.")} </p>
-          <p>
-            <a className="pages__footer-link" href=Utils.github_url>
-              {React.string("Source code is available")}
-            </a>
-            {React.string(" under the ")}
-            <a className="pages__footer-link" href=Utils.license_url>
-              {React.string("Mozilla Public License 2.0")}
-            </a>
-            {React.string(".")}
-          </p>
-        </div>
+        <p>
+          {React.string("Based on ")}
+          <a className="pages__footer-link" href=Utils.github_url>
+            {React.string("Coronate")}
+          </a>
+          {React.string(" by John Jackson. Fork available at ")}
+          <a className="pages__footer-link" href="https://github.com/mrnohr/coronate">
+            {React.string("github.com/mrnohr/coronate")}
+          </a>
+          {React.string(".")}
+        </p>
       </footer>
     </div>
 }
