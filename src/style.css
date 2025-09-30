@@ -660,7 +660,17 @@ table {
 
 th,
 td {
-  padding: 4px;
+  padding: 8px;
+  border: 1px solid var(--grey-40);
+}
+
+thead th {
+  background-color: var(--grey-20);
+  border-bottom: 2px solid var(--grey-50);
+}
+
+tbody.content td {
+  background-color: var(--white-100);
 }
 
 .table__number {
