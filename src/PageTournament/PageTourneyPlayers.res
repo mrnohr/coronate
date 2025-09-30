@@ -478,10 +478,11 @@ let make = (~tournament: LoadTournament.t) => {
         | true => <p className="caption-20"> {React.string("No bye requests yet.")} </p>
         | false =>
           <table style={{width: "100%"}}>
+            <caption> {React.string("Bye requests")} </caption>
             <thead>
               <tr>
-                <th style={{textAlign: "left"}}> {React.string("Player")} </th>
-                <th style={{textAlign: "left"}}> {React.string("Requested rounds")} </th>
+                <th> {React.string("Player")} </th>
+                <th> {React.string("Rounds")} </th>
                 <th> {React.string("Actions")} </th>
               </tr>
             </thead>

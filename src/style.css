@@ -105,8 +105,7 @@ h1 {
 }
 
 .title-40,
-h2,
-caption {
+h2 {
   font-size: var(--font-title-40);
   font-weight: 300;
   margin: 0.25em 0;
@@ -667,6 +666,16 @@ td {
 thead th {
   background-color: var(--grey-20);
   border-bottom: 2px solid var(--grey-50);
+  font-size: var(--font-title-20) !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure sort buttons match normal th styling */
+thead th button {
+  font-size: var(--font-title-20) !important;
+  font-weight: 500;
+  height: auto !important;
+  min-width: auto !important;
 }
 
 tbody.content td {
