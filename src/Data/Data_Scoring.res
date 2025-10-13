@@ -306,9 +306,8 @@ let createStandingArray = (t, orderedMethods) =>
   ->Map.valuesToArray
   ->SortArray.stableSortBy(standingsSorter(orderedMethods, ...))
 
-let eq = (a, b, tieBreaks) =>
-  Score.Sum.eq(a.score, b.score) &&
-  Array.every(tieBreaks, tb => Score.Sum.eq(getTieBreak(a, tb), getTieBreak(b, tb)))
+let eq = (a, b, _tieBreaks) =>
+  Score.Sum.eq(a.score, b.score)
 
 let createStandingTree = (standingArray, ~tieBreaks) =>
   Array.reduce(standingArray, list{}, (tree, standing) =>

@@ -19,6 +19,7 @@ This is what I added:
 - Allow players to pre-select byes for different rounds
 - Allow TDs to set the number of rounds for a tournament in advance. This was needed so that we could pre-select byes for different rounds.
 - Updated styling
+- Change the tournament summary to not use tiebreaks for the current standings
 
 ## Help wanted!
 
