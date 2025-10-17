@@ -20,6 +20,7 @@ This is what I added:
 - Allow TDs to set the number of rounds for a tournament in advance. This was needed so that we could pre-select byes for different rounds.
 - Updated styling
 - Change the tournament summary to not use tiebreaks for the current standings
+- Allow backing up to private GitLab snippets
 
 ## Help wanted!
 

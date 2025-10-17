@@ -196,6 +196,9 @@ type actionAuth =
   | SetGitHubToken(string)
   | SetGistId(string)
   | RemoveGistId
+  | SetGitLabToken(string)
+  | SetSnippetId(string)
+  | RemoveSnippetId
   | SetState(Data.Auth.t)
   | Reset
 
@@ -205,6 +208,9 @@ let authReducer = (state: Data.Auth.t, action) =>
   | SetGitHubToken(token) => {...state, github_token: token}
   | SetGistId(id) => {...state, github_gist_id: id}
   | RemoveGistId => {...state, github_gist_id: ""}
+  | SetGitLabToken(token) => {...state, gitlab_token: token}
+  | SetSnippetId(id) => {...state, gitlab_snippet_id: id}
+  | RemoveSnippetId => {...state, gitlab_snippet_id: ""}
   | SetState(state) => state
   }
 

@@ -301,6 +301,289 @@ module GistOpts = {
   }
 }
 
+module SnippetOpts = {
+  let dateFormatter = {
+    DateTimeFormat.make(
+      ["en-US"],
+      DateTimeFormat.Options.make(
+        ~day=#"2-digit",
+        ~month=#"2-digit",
+        ~year=#"2-digit",
+        ~hour=#"2-digit",
+        ~minute=#"2-digit",
+        (),
+      ),
+    )
+  }
+
+  let savedAlert = () => Webapi.Dom.Window.alert(Webapi.Dom.window, "Data saved.")
+
+  @react.component
+  let make = (~exportData, ~configDispatch: Db.actionConfig => unit, ~loadJson) => {
+    let (auth, authDispatch) = Db.useAuth()
+    let minify = Hooks.useBool(true)
+    let (snippets, setSnippets) = React.useState(() => [])
+    let (tokenInput, setTokenInput) = React.useState(() => "")
+    let (snippetUrlInput, setSnippetUrlInput) = React.useState(() => "")
+    let cancelAllEffects = ref(false)
+
+    let handleAuthError = e => {
+      Js.Console.error(e)
+      Promise.resolve()
+    }
+
+    let loadSnippetList = (auth: Data.Auth.t) =>
+      switch auth.gitlab_token {
+      | "" => Promise.resolve(setSnippets(_ => []))
+      | token =>
+        GitLab.Snippet.list(~token)
+        ->Promise.thenResolve((data: array<GitLab.Snippet.file>) => {
+          if !cancelAllEffects.contents {
+            setSnippets(_ => data)
+            if !Array.some(data, x => x.id == auth.gitlab_snippet_id) {
+              authDispatch(RemoveSnippetId)
+            }
+          }
+        })
+        ->Promise.catch(handleAuthError)
+      }
+
+    React.useEffect1(() => {
+      loadSnippetList(auth)->ignore
+      Some(() => cancelAllEffects := true)
+    }, [auth.gitlab_token])
+
+    <div>
+      <h3> {"Backup to GitLab Snippet"->React.string} </h3>
+      <p className="caption-30">
+        {"With a GitLab personal access token, you can save your data to a private "->React.string}
+        <a href="https://docs.gitlab.com/ee/user/snippets.html">
+          {"snippet "->React.string}
+          <Icons.ExternalLink />
+        </a>
+        {". GitLab snippets can be truly private and are not publicly accessible."->React.string}
+      </p>
+      <p className="caption-30">
+        {"To get started, create a "->React.string}
+        <a href="https://gitlab.com/-/profile/personal_access_tokens">
+          {"personal access token "->React.string}
+          <Icons.ExternalLink />
+        </a>
+        {" with 'api' scope."->React.string}
+      </p>
+      <p>
+        {switch auth.gitlab_token {
+        | "" =>
+          <div>
+            <label>
+              {"GitLab Personal Access Token:"->React.string}
+              <br />
+              <input
+                type_="password"
+                value=tokenInput
+                onChange={e => {
+                  let value = ReactEvent.Form.currentTarget(e)["value"]
+                  setTokenInput(_ => value)
+                }}
+                placeholder="glpat-xxxxxxxxxxxxxxxxxxxx"
+                style={ReactDOM.Style.make(~width="300px", ())}
+              />
+            </label>
+            {" "->React.string}
+            <button
+              onClick={_ => {
+                if tokenInput != "" {
+                  authDispatch(SetGitLabToken(tokenInput))
+                  setTokenInput(_ => "")
+                }
+              }}
+              disabled={tokenInput == ""}>
+              {"Save token"->React.string}
+            </button>
+          </div>
+        | _ =>
+          <div>
+            {"Token saved. "->React.string}
+            <button
+              onClick={_ => {
+                authDispatch(SetGitLabToken(""))
+                authDispatch(RemoveSnippetId)
+              }}>
+              {"Remove token"->React.string}
+            </button>
+          </div>
+        }}
+      </p>
+      {switch auth.gitlab_token {
+      | "" => React.null
+      | gitlab_token =>
+        <div>
+          <button
+            onClick={_ => {
+              GitLab.Snippet.create(
+                ~token=gitlab_token,
+                ~data=encodeOptions(exportData),
+                ~minify=minify.state,
+              )
+              ->Promise.thenResolve(newSnippet => {
+                let snippetObj = Js.Json.decodeObject(newSnippet)
+                  ->Belt.Option.getWithDefault(Js.Dict.empty())
+                let id = snippetObj
+                  ->Js.Dict.get("id")
+                  ->Belt.Option.flatMap(Js.Json.decodeNumber)
+                  ->Belt.Option.map(Belt.Float.toString)
+                  ->Belt.Option.getWithDefault("")
+                if !cancelAllEffects.contents {
+                  authDispatch(SetSnippetId(id))
+                  configDispatch(SetLastBackup(Js.Date.make()))
+                }
+                savedAlert()
+              })
+              ->Promise.then(() => loadSnippetList(auth))
+              ->Promise.catch(e => {
+                Webapi.Dom.Window.alert(
+                  Webapi.Dom.window,
+                  "Backup failed. Check your GitLab token.",
+                )
+                handleAuthError(e)
+              })
+              ->ignore
+            }}>
+            {"Create a new snippet"->React.string}
+          </button>
+          <p className="caption-30">
+            {"Or enter a snippet URL or ID to use an existing snippet:"->React.string}
+          </p>
+          <div>
+            <input
+              type_="text"
+              value=snippetUrlInput
+              onChange={e => {
+                let value = ReactEvent.Form.currentTarget(e)["value"]
+                setSnippetUrlInput(_ => value)
+              }}
+              placeholder="https://gitlab.com/snippets/123456 or just 123456"
+              style={ReactDOM.Style.make(~width="400px", ())}
+            />
+            {" "->React.string}
+            <button
+              onClick={_ => {
+                switch GitLab.Snippet.extractSnippetId(snippetUrlInput) {
+                | Some(id) =>
+                  authDispatch(SetSnippetId(id))
+                  setSnippetUrlInput(_ => "")
+                | None =>
+                  Webapi.Dom.Window.alert(
+                    Webapi.Dom.window,
+                    "Could not extract snippet ID from URL. Please enter a valid GitLab snippet URL or ID.",
+                  )
+                }
+              }}
+              disabled={snippetUrlInput == ""}>
+              {"Use this snippet"->React.string}
+            </button>
+          </div>
+          {if snippets->Belt.Array.length > 0 {
+            <div>
+              <p className="caption-30"> {"Or select from your existing snippets:"->React.string} </p>
+              <select
+                value={auth.gitlab_snippet_id}
+                onBlur={e => {
+                  let id = ReactEvent.Focus.currentTarget(e)["value"]
+                  authDispatch(SetSnippetId(id))
+                }}
+                onChange={e => {
+                  let id = ReactEvent.Form.currentTarget(e)["value"]
+                  authDispatch(SetSnippetId(id))
+                }}>
+                <option value=""> {"No snippet selected."->React.string} </option>
+                {snippets
+                ->Array.map(({title, id, updated_at}) =>
+                  <option key=id value=id>
+                    {title->React.string}
+                    {" | updated "->React.string}
+                    {DateTimeFormat.format(dateFormatter, updated_at)->React.string}
+                  </option>
+                )
+                ->React.array}
+              </select>
+            </div>
+          } else {
+            React.null
+          }}
+          <p>
+            <button
+              onClick={_ => {
+                switch auth.gitlab_snippet_id {
+                | "" => Js.Console.error("Snippet ID is blank.")
+                | id =>
+                  GitLab.Snippet.write(
+                    ~id,
+                    ~token=gitlab_token,
+                    ~data=encodeOptions(exportData),
+                    ~minify=minify.state,
+                  )
+                  ->Promise.thenResolve(_ => {
+                    if !cancelAllEffects.contents {
+                      configDispatch(SetLastBackup(Js.Date.make()))
+                    }
+                    savedAlert()
+                  })
+                  ->Promise.then(() => loadSnippetList(auth))
+                  ->Promise.catch(e => {
+                    Webapi.Dom.Window.alert(
+                      Webapi.Dom.window,
+                      "Backup failed. Check your GitLab token or try a different snippet.",
+                    )
+                    handleAuthError(e)
+                  })
+                  ->ignore
+                }
+              }}
+              disabled={auth.gitlab_snippet_id == ""}>
+              {"Backup to this snippet"->React.string}
+            </button>
+            {" "->React.string}
+            <button
+              onClick={_ => {
+                switch auth.gitlab_snippet_id {
+                | "" => Js.Console.error("Snippet ID is blank.")
+                | id =>
+                  GitLab.Snippet.read(~id, ~token=gitlab_token)
+                  ->Promise.thenResolve(result => {
+                    loadJson(result)
+                  })
+                  ->Promise.catch(e => {
+                    invalidAlert()
+                    handleAuthError(e)
+                  })
+                  ->ignore
+                }
+              }}
+              disabled={auth.gitlab_snippet_id == ""}>
+              {"Load from this snippet"->React.string}
+            </button>
+          </p>
+          <p className="caption-30">
+            <label>
+              <input
+                type_="checkbox"
+                checked=minify.state
+                onChange={_ =>
+                  switch minify.state {
+                  | true => minify.setFalse()
+                  | false => minify.setTrue()
+                  }}
+              />
+              {" Minify output."->React.string}
+            </label>
+          </p>
+        </div>
+      }}
+    </div>
+  }
+}
+
 @react.component
 let make = (~windowDispatch=_ => ()) => {
   let {items: tournaments, dispatch: tourneysDispatch, _} = Db.useAllTournaments()
@@ -471,6 +754,7 @@ let make = (~windowDispatch=_ => ()) => {
         <LastBackupDate date=config.lastBackup />
       </p>
       <GistOpts configDispatch exportData loadJson />
+      <SnippetOpts configDispatch exportData loadJson />
       <h3> {"Backup locally"->React.string} </h3>
       <p>
         <a

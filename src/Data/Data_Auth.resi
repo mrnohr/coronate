@@ -8,6 +8,8 @@
 type t = {
   github_token: string,
   github_gist_id: string,
+  gitlab_token: string,
+  gitlab_snippet_id: string,
 }
 
 let encode: t => Js.Json.t

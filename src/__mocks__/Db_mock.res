@@ -81,6 +81,9 @@ type actionAuth = Db.actionAuth =
   | SetGitHubToken(string)
   | SetGistId(string)
   | RemoveGistId
+  | SetGitLabToken(string)
+  | SetSnippetId(string)
+  | RemoveSnippetId
   | SetState(Data.Auth.t)
   | Reset
 
