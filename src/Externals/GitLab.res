@@ -114,13 +114,12 @@ module Snippet = {
       Js.Json.stringifyWithSpace(data, 2)
     }
 
-    // Use "create" action which will create the file if it doesn't exist
-    // or update it if it does (GitLab handles this automatically)
+    // Use "update" action for existing files
     let body = Js.Dict.fromArray([
       ("title", Js.Json.string("coronate-data")),
       ("files", Js.Json.array([
         Js.Dict.fromArray([
-          ("action", Js.Json.string("create")),
+          ("action", Js.Json.string("update")),
           ("file_path", Js.Json.string("coronate-data.json")),
           ("content", Js.Json.string(content)),
         ])->Js.Json.object_
