@@ -174,7 +174,9 @@ module MatchRow = {
     | None => false
     | Some(selectedValue) => Id.eq(m.id, selectedValue)
     }
-    <tr className={`${className} ${selected ? "selected" : ""}}`}>
+    let hasResult = m.result != NotSet
+    let completedClass = hasResult ? " pageround__tr--completed" : ""
+    <tr className={`${className}${completedClass} ${selected ? "selected" : ""}`}>
       <th className={"pageround__row-id table__number"} scope="row">
         {string_of_int(pos + 1)->React.string}
       </th>
