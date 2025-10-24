@@ -16,7 +16,7 @@ This version of Coronate was originally a fork of [johnridesabike/coronate](http
 
 This is what I added:
 
-- Allow players to pre-select byes for different rounds
+- Allow players to pre-select byes for different rounds. If a player has a future bye scheduled, they are less likely to get a bye in earlier rounds.
 - Allow TDs to set the number of rounds for a tournament in advance. This was needed so that we could pre-select byes for different rounds.
 - Updated styling
 - Change the tournament summary to not use tiebreaks for the current standings

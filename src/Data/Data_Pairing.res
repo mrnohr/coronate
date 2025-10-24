@@ -158,6 +158,14 @@ let sortByScoreThenRating = (data1, data2) =>
 
 let setByePlayer = (byeQueue, byeRequests, currentRound, dummyId, data: t) => {
   let hasNotHadBye = p => !List.some(p.opponents, Id.eq(dummyId, ...))
+  /* Helper function to check if a player has requested byes in future rounds */
+  let hasFutureByeRequests = playerId => {
+    switch Map.get(byeRequests, playerId) {
+    | None => false
+    | Some(roundSet) =>
+      Belt.Set.Int.some(roundSet, round => round > currentRound)
+    }
+  }
   /* if the list is even, just return it. */
   switch mod(Map.size(data.players), 2) {
   | exception Division_by_zero => (data, None)
@@ -182,10 +190,17 @@ let setByePlayer = (byeQueue, byeRequests, currentRound, dummyId, data: t) => {
       }
     )
 
-    /* If no one requested a bye for this round, fall back to the old bye queue logic */
-    let nextByeSignups = Array.length(roundSpecificRequests) > 0
-      ? roundSpecificRequests
-      : Array.keep(byeQueue, hasntHadByeFn)
+    /* If no one requested a bye for this round, fall back to the bye queue logic
+       but prefer players without future bye requests */
+    let nextByeSignups = if Array.length(roundSpecificRequests) > 0 {
+      roundSpecificRequests
+    } else {
+      let eligibleByeQueue = Array.keep(byeQueue, hasntHadByeFn)
+      /* Try to find someone in the queue without future bye requests */
+      let withoutFutureRequests = Array.keep(eligibleByeQueue, id => !hasFutureByeRequests(id))
+      /* If there are players without future requests, use them; otherwise use all eligible */
+      Array.length(withoutFutureRequests) > 0 ? withoutFutureRequests : eligibleByeQueue
+    }
 
     let dataForNextBye = switch nextByeSignups[0] {
     /* Assign the bye to the next person who signed up or requested this round. */
@@ -196,12 +211,15 @@ let setByePlayer = (byeQueue, byeRequests, currentRound, dummyId, data: t) => {
       }
     | None =>
       /* Assign a bye to the lowest-rated player in the lowest score group.
-         Because the list is sorted, the last player is the lowest.
+         Because the list is sorted, the first player is the lowest.
+         Prefer players without future bye requests.
          (USCF § 29L2.) */
-      switch dataArr[0] {
+      let withoutFutureRequests = Array.keep(dataArr, p => !hasFutureByeRequests(p.id))
+      let candidateArr = Array.length(withoutFutureRequests) > 0 ? withoutFutureRequests : dataArr
+      switch candidateArr[0] {
       | Some(_) as x => x
       /* In the impossible situation that *everyone* has played a bye
-       round previously, then just pick the last player. */
+       round previously, then just pick the first player. */
       | None =>
         data.players->Map.valuesToArray->SortArray.stableSortBy(sortByScoreThenRating)->Array.get(0)
       }
